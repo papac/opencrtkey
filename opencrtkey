@@ -1,0 +1,46 @@
+#!/bin/bash
+
+if [ $# != 2 ]; then
+	echo -e "\033[0;31m usage: opencrtkey outfile size\033[00m"
+	exit 1
+fi
+
+if [ ! -f $1 -a ! -d $1 ]; then
+	
+	if [ -s $1".key" ]; then
+		echo -e "\033[0;31m $1.key file alrealy exist.\033[00m"
+		exit 1
+	fi
+
+	case $2 in
+		1024)
+			size=1024
+			;;
+		2048)
+			size=2046
+			;;
+			*)
+				echo "key size not accept"
+				exit 1
+			;;
+	esac
+	
+	echo -e "---\033[0;35m * Generate the key server\033[00m ---\n"
+	# Create a key
+	openssl genrsa -des3 -out $1".key" $size
+	
+	echo -e "\n"
+	echo -e "---\033[0;35m * Create the certificate key server\033[00m ---\n"
+	# Create request key
+	openssl req -new -key $1".key" -out $1".csr"
+	
+	echo -e "\n"
+	echo -e "---\033[0;35m * Singate certificate ---\033[00m\n"
+	# Signature request key
+	openssl x509 -req -days 365 -in $1".csr" -signkey $1".key" -out $1".crt"
+
+else 
+	
+	echo -e "\033[0;31mouput file not defined\033[00m"
+
+fi
