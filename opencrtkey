@@ -28,15 +28,20 @@ if [ ! -f $1 -a ! -d $1 ]; then
 	echo -e "---\033[0;35m * Generate the key server\033[00m ---\n"
 	# Create a key
 	openssl genrsa -des3 -out $1".key" $size
-	
+
+    # Remove the key's passphrase
+    openssl rsa -in $1".key" -out $1".key"
+
 	echo -e "\n"
 	echo -e "---\033[0;35m * Create the certificate key server\033[00m ---\n"
-	# Create request key
+	
+    # Create request key
 	openssl req -new -key $1".key" -out $1".csr"
 	
 	echo -e "\n"
 	echo -e "---\033[0;35m * Singate certificate ---\033[00m\n"
-	# Signature request key
+	
+    # Signature request key
 	openssl x509 -req -days 365 -in $1".csr" -signkey $1".key" -out $1".crt"
 
 else 
